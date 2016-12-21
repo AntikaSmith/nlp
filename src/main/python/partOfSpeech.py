@@ -4,6 +4,7 @@ from nltk.tokenize import word_tokenize
 
 def buildMap(data):
     """
+    build the map from document id to annotation lines
     @data: raw data string
     """
     dList = data.split("\n")
@@ -73,22 +74,22 @@ def readFile(setName):
                 if tag[0] in words:
                     species, index = findSpecies(tag[0], anno, offset, string)
                     offset = index + len(tag[0])
-                    results.append((docId, tag[0], tag[1], species))
+                    results.append((docId, tag[0], tag[1], index, offset, species))
                 else:
-                    results.append((docId, tag[0], tag[1], "OTHER"))
+                    results.append((docId, tag[0], tag[1], offset, offset + len(tag[0]), "OTHER"))
             return 0
         computeSpecies(titleTags, title)
         computeSpecies(textTags, text)
         results.append("\n")
 
-    crfFile = open(setName + ".data", "w", encoding = "utf-8")
+    crfFile = open("target/" + setName + ".data", "w", encoding = "utf-8")
     for result in results:
         crfFile.write("\t".join(str(i) for i in result) + "\n")
     crfFile.close()
     return 0    
         
     print(id2Anno["CA2128706C"])
-    
-os.chdir("../../../")
-readFile("train")
+
+import sys
+readFile(sys.argv[0])
     
