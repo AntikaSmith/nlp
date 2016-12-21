@@ -18,21 +18,25 @@ object Preprocess {
     file.close()
   }
 
+  def writeDataset(resultName: String, srcData: List[String], train: Set[String], dev: Set[String], test: Set[String]) = {
+    val idZipData = srcData.map(_.split("\t").apply(0)).zip(srcData)
+    def filterAndWrite(partName: String, set: Set[String]) = {
+      val data = idZipData.filter(tuple => set.contains(tuple._1)).map(_._2)
+      writeFile("target/" + resultName + "_" + partName + ".tsv", data)
+    }
+    filterAndWrite("train", train)
+    filterAndWrite("dev", dev)
+    filterAndWrite("test", test)
+  }
+
   def splitDataset = {
     val original = readFileAsStringList("BioCreative V.5 training set.txt")
     val annotation = readFileAsStringList("CEMP_BioCreative V.5 training set annot.tsv")
     val docIds = annotation.map(_.split("\t").apply(0)).toSet
-    val (trainIds, testIds) = util.Random.shuffle(docIds).splitAt((docIds.size * 0.8).toInt)
-    println(trainIds.size + "\n" + testIds.size)
-    def splitAndWrite(resultName: String, srcData: List[String], train: Set[String], test: Set[String]) = {
-      val idZipData = srcData.map(_.split("\t").apply(0)).zip(srcData)
-      val trainData = idZipData.filter(tuple => train.contains(tuple._1)).map(_._2)
-      val testData = idZipData.filter(tuple => test.contains(tuple._1)).map(_._2)
-      writeFile("target/" + resultName + "_train.tsv", trainData)
-      writeFile("target/" + resultName + "_test.tsv", testData)
-    }
+    val (trainIds, devAndTest) = util.Random.shuffle(docIds).splitAt((docIds.size * 0.6).toInt)
+    val (devIds, testIds) = devAndTest.splitAt((devAndTest.size * 0.5).toInt)
 
-    splitAndWrite("original", original, trainIds, testIds)
-    splitAndWrite("annotation", annotation, trainIds, testIds)
+    writeDataset("original", original, trainIds, devIds, testIds)
+    writeDataset("annotation", annotation, trainIds, devIds, testIds)
   }
 }
