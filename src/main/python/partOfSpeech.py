@@ -29,14 +29,17 @@ def findSpecies(word, annos, offset, string):
         try:
             aList = anno.split("\t")
             index = string.index(word, offset)
-            newOffset = index + len(word)
             if int(aList[2]) == index:
-                return ("B" + aList[-1], index + len(word))
+                return ("B" + aList[-1], index)
             elif int(aList[2]) < index and int(aList[3]) > index:
-                return ("I" + aList[-1], index + len(word))
+                return ("I" + aList[-1], index)
         except ValueError:
-            return ("OTHER", offset + len(word))#if the word has been parsed
-    return ("OTHER", newOffset)
+            while(offset < len(string) -1 and string[offset] == ' '):
+                offset += 1
+            return ("OTHER", offset)#if the word has been parsed
+    while(offset < len(string) -1 and string[offset] == ' '):
+                offset += 1
+    return ("OTHER", offset)
 
 def readFile(setName):
     """
@@ -68,12 +71,11 @@ def readFile(setName):
             offset = 0
             for tag in tags:
                 if tag[0] in words:
-                    species, newOffset = findSpecies(tag[0], anno, offset, string)
+                    species, index = findSpecies(tag[0], anno, offset, string)
+                    offset = index + len(tag[0])
                     results.append((docId, tag[0], tag[1], species))
-                    offset = newOffset
                 else:
                     results.append((docId, tag[0], tag[1], "OTHER"))
-                    offset = offset + len(tag[0])
             return 0
         computeSpecies(titleTags, title)
         computeSpecies(textTags, text)
@@ -81,7 +83,8 @@ def readFile(setName):
 
     crfFile = open(setName + ".data", "w", encoding = "utf-8")
     for result in results:
-        crfFile.write("\t".join(result) + "\n") 
+        crfFile.write("\t".join(str(i) for i in result) + "\n")
+    crfFile.close()
     return 0    
         
     print(id2Anno["CA2128706C"])
