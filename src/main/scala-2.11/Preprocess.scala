@@ -2,7 +2,7 @@ import java.io.PrintWriter
 
 /**
   * Created by Anckaro on 2016/12/20.
-  * preprocess the orginal data, including split training/test set and adjudge the data format
+  * preprocess the original data, including randomly splitting training/test set and adjudging the data format
   */
 object Preprocess {
   def readFileAsStringList(file: String) = {
@@ -19,8 +19,8 @@ object Preprocess {
   }
 
   def splitDataset = {
-    val orginal = Preprocess.readFileAsStringList("BioCreative V.5 training set.txt")
-    val annotation = Preprocess.readFileAsStringList("CEMP_BioCreative V.5 training set annot.tsv")
+    val original = readFileAsStringList("BioCreative V.5 training set.txt")
+    val annotation = readFileAsStringList("CEMP_BioCreative V.5 training set annot.tsv")
     val docIds = annotation.map(_.split("\t").apply(0)).toSet
     val (trainIds, testIds) = util.Random.shuffle(docIds).splitAt((docIds.size * 0.8).toInt)
     println(trainIds.size + "\n" + testIds.size)
@@ -32,7 +32,7 @@ object Preprocess {
       writeFile("target/" + resultName + "_test.tsv", testData)
     }
 
-    splitAndWrite("original", orginal, trainIds, testIds)
+    splitAndWrite("original", original, trainIds, testIds)
     splitAndWrite("annotation", annotation, trainIds, testIds)
   }
 }
