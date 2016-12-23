@@ -91,5 +91,5 @@ def readFile(setName):
     print(id2Anno["CA2128706C"])
 
 import sys
-readFile(sys.argv[0])
+readFile(sys.argv[1])
     
