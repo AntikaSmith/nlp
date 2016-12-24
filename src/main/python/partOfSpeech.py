@@ -42,6 +42,15 @@ def findSpecies(word, annos, offset, string):
                 offset += 1
     return ("OTHER", offset)
 
+def allocateTag(tags):
+    result = []
+    import re
+    for tag in tags:
+        for word in re.split('(-)', tag[0]):
+            if word != '':
+                result.append((word, tag[1]))
+    return result
+
 def readFile(setName):
     """
     @setName: the name of the dataset. It can be train, dev or test
@@ -62,21 +71,18 @@ def readFile(setName):
             continue
         docId, title, text = doc.split("\t")
         titleList = word_tokenize(title)
-        titleTags = nltk.pos_tag(titleList)
+        titleTags = allocateTag(nltk.pos_tag(titleList))
         textList = word_tokenize(text)
-        textTags = nltk.pos_tag(textList)
+        textTags = allocateTag(nltk.pos_tag(textList))
         anno = id2Anno[docId]
         words = set(x for line in anno for x in word_tokenize(line.split("\t")[4]))
 
         def computeSpecies(tags, string):
             offset = 0
             for tag in tags:
-                if tag[0] in words:
-                    species, index = findSpecies(tag[0], anno, offset, string)
-                    offset = index + len(tag[0])
-                    results.append((docId, tag[0], tag[1], index, offset, species))
-                else:
-                    results.append((docId, tag[0], tag[1], offset, offset + len(tag[0]), "OTHER"))
+                species, index = findSpecies(tag[0], anno, offset, string)
+                offset = index + len(tag[0])
+                results.append((docId, tag[0], tag[1], index, offset, species))
             return 0
         computeSpecies(titleTags, title)
         computeSpecies(textTags, text)

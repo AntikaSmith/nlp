@@ -4,6 +4,7 @@
 object Main {
   def main(args: Array[String]) = {
     Preprocess.splitDataset
+    ChemicalTagger.tag(ChemicalTagger.testText)
   }
 
 
