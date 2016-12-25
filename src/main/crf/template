@@ -4,14 +4,14 @@ U01:%x[-1,4]
 U02:%x[0,4]
 U03:%x[1,4]
 U04:%x[2,4]
-
-U10:%x[0, 5]
-U11:%x[0, 6]
-U12:%x[0, 7]
-U13:%x[0, 8]
-U14:%x[0, 9]
-U15:%x[0, 10]
-U16:%x[0, 11]
+#There must be no redundant spaces, or there would be error
+U10:%x[0,5]
+U11:%x[0,6]
+U12:%x[0,7]
+U13:%x[0,8]
+U14:%x[0,9]
+U15:%x[0,10]
+U16:%x[0,11]
 
 
 # Bigram
