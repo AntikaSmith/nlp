@@ -17,7 +17,7 @@ def buildMap(data):
             dDict[key] = [line]
     return dDict
 
-def findSpecies(word, annos, offset, string):
+def matchAnno(word, annos, offset, string):
     """
     @word: string, like: Tricyclic
     @annos: annotation lines list,like:
@@ -51,6 +51,26 @@ def allocateTag(tags):
                 result.append((word, tag[1]))
     return result
 
+def lexFeature(rawWord):
+    word = rawWord.strip()
+    import re
+    hasPunkt = len(re.findall('\w', word)) != len(word)
+    hasDigit = len(re.findall('\d', word)) != 0
+    firstIsCapital = (word[0] >= 'A' and word[0] <= 'Z')
+    allAreCapital = False
+    if firstIsCapital:
+        allAreCapital = (re.match('[A-Z]+', word).string == word)
+    prefix = word[0:4]
+    postfix = word[-4:]
+    stem = ''
+    if len(word) <= 4:
+        stem = word
+    else:
+        stem = word[2:5]
+    return [hasPunkt, hasDigit, firstIsCapital, allAreCapital, prefix, postfix, stem]
+    
+    
+
 def readFile(setName):
     """
     @setName: the name of the dataset. It can be train, dev or test
@@ -65,36 +85,40 @@ def readFile(setName):
     id2Anno = buildMap(annotation)
 
     results = []
+    import nltk.data
+    sentence_detector = nltk.data.load('tokenizers/punkt/english.pickle')
     for doc in original.split("\n"):
         if len(doc.split("\t")) < 3:
             print("doc split error:$doc\n" + doc + "\n")
             continue
         docId, title, text = doc.split("\t")
-        titleList = word_tokenize(title)
-        titleTags = allocateTag(nltk.pos_tag(titleList))
-        textList = word_tokenize(text)
-        textTags = allocateTag(nltk.pos_tag(textList))
         anno = id2Anno[docId]
-        words = set(x for line in anno for x in word_tokenize(line.split("\t")[4]))
-
         def computeSpecies(tags, string):
             offset = 0
             for tag in tags:
-                species, index = findSpecies(tag[0], anno, offset, string)
+                annoClass, index = matchAnno(tag[0], anno, offset, string)
                 offset = index + len(tag[0])
-                results.append((docId, tag[0], tag[1], index, offset, species))
-            return 0
+                results.append([docId, tag[0], index, offset, tag[1]] + lexFeature(tag[0]) + [annoClass])
+        
+        titleList = word_tokenize(title)
+        titleTags = allocateTag(nltk.pos_tag(titleList))
         computeSpecies(titleTags, title)
-        computeSpecies(textTags, text)
         results.append("\n")
+        
+        sentenceList = sentence_detector.tokenize(text)
+        for sentence in sentenceList:
+            textList = word_tokenize(sentence)
+            textTags = allocateTag(nltk.pos_tag(textList))
+            words = set(x for line in anno for x in word_tokenize(line.split("\t")[4]))
+
+            computeSpecies(textTags, text)
+            results.append("\n")
 
     crfFile = open("target/" + setName + ".data", "w", encoding = "utf-8")
     for result in results:
         crfFile.write("\t".join(str(i) for i in result) + "\n")
     crfFile.close()
-    return 0    
-        
-    print(id2Anno["CA2128706C"])
+    return 0
 
 import sys
 readFile(sys.argv[1])
