@@ -1,6 +1,6 @@
 import os
 
-os.chdir("../../../target")
+os.chdir("target")
 
 def evaluate(resultFileName):
     file = open(resultFileName, "r", encoding = "utf-8")
@@ -31,7 +31,7 @@ def main(args):
     precision, recall, f1 = evaluate("result")
     import datetime
     dateStr = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    log = "precision: %.2f\nrecall:%.2f\nf1 score:%.2f\n"% (precision, recall, f1)
+    log = "precision: %.5f\nrecall:%.5f\nf1 score:%.5f\n"% (precision, recall, f1)
     log = "\n".join(["\n", dateStr, log])
     logFile = open("log", "a")
     logFile.write(log)

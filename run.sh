@@ -18,5 +18,6 @@ do
             	echo "unkonw argument"
         esac
 done
-crf_learn -f 3 -c 1.5 src/main/crf/template target/train.data target/model
-crf_test -m target/model target/test.data > result
+crf_learn -f 10 src/main/crf/template target/train.data target/model >> target/log
+crf_test -m target/model target/test.data > target/result
+python src/main/python/evaluate.py 
