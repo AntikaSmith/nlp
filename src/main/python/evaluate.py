@@ -13,12 +13,12 @@ def evaluate(resultFileName):
     truePositive = 0
     for line in lines:
         words = line.split("\t")
-        if (len(words) == 7):
-            if (words[5] != "OTHER"):
-                if (words[5] == words[6]):
+        if (len(words) > 7):
+            if (words[-2] != "OTHER"):
+                if (words[-2] == words[-1]):
                     truePositive += 1
                 positive += 1
-            if (words[6] != "OTHER"):
+            if (words[-1] != "OTHER"):
                 predictPositive += 1
 
     recall = truePositive / positive
