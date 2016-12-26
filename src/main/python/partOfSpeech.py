@@ -26,9 +26,8 @@ def matchAnno(word, annos, offset, string):
     @offset: int, the start offset of the word
     @string: the full text
     """
-    for anno in annos:
+    for aList in annos:
         try:
-            aList = anno.split("\t")
             index = string.index(word, offset)
             if int(aList[2]) == index:
                 return ("B" + aList[-1], index)
@@ -92,17 +91,20 @@ def readFile(setName):
             print("doc split error:$doc\n" + doc + "\n")
             continue
         docId, title, text = doc.split("\t")
-        anno = id2Anno[docId]
-        def computeSpecies(tags, string):
+        annos = [anno.split('\t') for anno in id2Anno[docId]]
+        tAnnos = [for anno in annos if anno[1] == 'T']
+        aAnnos = [for anno in annos if anno[1] == 'A']
+        
+        def computeSpecies(tags, string, annosPlaceholder):
             offset = 0
             for tag in tags:
-                annoClass, index = matchAnno(tag[0], anno, offset, string)
+                annoClass, index = matchAnno(tag[0], annosPlaceHolder, offset, string)
                 offset = index + len(tag[0])
                 results.append([docId, tag[0], index, offset, tag[1]] + lexFeature(tag[0]) + [annoClass])
         
         titleList = word_tokenize(title)
         titleTags = allocateTag(nltk.pos_tag(titleList))
-        computeSpecies(titleTags, title)
+        computeSpecies(titleTags, title, tAnnos)
         results.append("\n")
         
         sentenceList = sentence_detector.tokenize(text)
@@ -111,7 +113,7 @@ def readFile(setName):
             textTags = allocateTag(nltk.pos_tag(textList))
             words = set(x for line in anno for x in word_tokenize(line.split("\t")[4]))
 
-            computeSpecies(textTags, text)
+            computeSpecies(textTags, text, Annos)
             results.append("\n")
 
     crfFile = open("target/" + setName + ".data", "w", encoding = "utf-8")
