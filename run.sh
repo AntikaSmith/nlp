@@ -10,9 +10,9 @@ do
 				;;
             t)
                 echo "tagging the part-of-speech tag"
-				python src/main/python/partOfSpeech.py train
-				python src/main/python/partOfSpeech.py dev
-				python src/main/python/partOfSpeech.py test
+				python3 src/main/python/partOfSpeech.py train
+				python3 src/main/python/partOfSpeech.py dev
+				python3 src/main/python/partOfSpeech.py test
 				;;
              ?)  #当有不认识的选项的时候arg为?
             	echo "unkonw argument"
@@ -27,6 +27,6 @@ for ((f = 1; f <= 10; f = f + 2)) do
 		crf_learn -f $f -c $real_c src/main/crf/template target/train.data target/model_$v > target/log_$v
 		sed '/^iter/d' target/log_$v >> log
 		crf_test -m target/model_$v target/dev.data > target/result
-		python src/main/python/evaluate.py >> log
+		python3 src/main/python/evaluate.py >> log
 	done
 done
