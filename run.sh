@@ -18,6 +18,15 @@ do
             	echo "unkonw argument"
         esac
 done
-crf_learn -f 10 src/main/crf/template target/train.data target/model >> target/log
-crf_test -m target/model target/test.data > target/result
-python src/main/python/evaluate.py 
+
+for ((f = 1; f <= 10; f = f + 2)) do
+	for ((c = 3; c <= 15; c = c + 3))do
+		v=f${f}_c${c}
+		real_c=$(echo $c 10.0 | awk '{ printf "%0.8f\n" ,$1/$2}')
+		echo "f: ${f} c: ${c}" >> log
+		crf_learn -f $f -c $real_c src/main/crf/template target/train.data target/model_$v > target/log_$v
+		sed '/^iter/d' target/log_$v >> log
+		crf_test -m target/model_$v target/dev.data > target/result
+		python src/main/python/evaluate.py >> log
+	done
+done
