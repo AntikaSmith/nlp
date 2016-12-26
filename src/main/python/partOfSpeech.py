@@ -92,13 +92,13 @@ def readFile(setName):
             continue
         docId, title, text = doc.split("\t")
         annos = [anno.split('\t') for anno in id2Anno[docId]]
-        tAnnos = [for anno in annos if anno[1] == 'T']
-        aAnnos = [for anno in annos if anno[1] == 'A']
+        tAnnos = [anno for anno in annos if anno[1] == 'T']
+        aAnnos = [anno for anno in annos if anno[1] == 'A']
         
         def computeSpecies(tags, string, annosPlaceholder):
             offset = 0
             for tag in tags:
-                annoClass, index = matchAnno(tag[0], annosPlaceHolder, offset, string)
+                annoClass, index = matchAnno(tag[0], annosPlaceholder, offset, string)
                 offset = index + len(tag[0])
                 results.append([docId, tag[0], index, offset, tag[1]] + lexFeature(tag[0]) + [annoClass])
         
@@ -111,9 +111,8 @@ def readFile(setName):
         for sentence in sentenceList:
             textList = word_tokenize(sentence)
             textTags = allocateTag(nltk.pos_tag(textList))
-            words = set(x for line in anno for x in word_tokenize(line.split("\t")[4]))
 
-            computeSpecies(textTags, text, Annos)
+            computeSpecies(textTags, text, aAnnos)
             results.append("\n")
 
     crfFile = open("target/" + setName + ".data", "w", encoding = "utf-8")
