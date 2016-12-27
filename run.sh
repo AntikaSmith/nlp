@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 echo "if need preprocessing, use -p.
 start running"
 while getopts "tp" arg #选项后面的冒号表示该选项需要参数
@@ -19,8 +19,10 @@ do
         esac
 done
 
-for ((f = 1; f <= 10; f = f + 2)) do
-	for ((c = 3; c <= 15; c = c + 3))do
+for ((f=1; f <= 10; f = f + 2))
+do
+	for ((c=3; c <= 15; c = c + 3))
+	do
 		v=f${f}_c${c}
 		real_c=$(echo $c 10.0 | awk '{ printf "%0.8f\n" ,$1/$2}')
 		echo "f: ${f} c: ${c}" >> log
